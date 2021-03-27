@@ -1,0 +1,11 @@
+{
+  "name": "prismaek",
+  "version": "0.0.0",
+  "description": "Generate custom color schemes using maths.",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "author": "Michael Sterpka <michaelsterpka@gmail.com> <github: @mster>",
+  "license": "MIT"
+}

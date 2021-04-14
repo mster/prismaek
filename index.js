@@ -2,5 +2,6 @@
 
 module.exports = {
     utils: require('./lib/utils'),
-    harmonies: require('./lib/harmonies')
+    harmonies: require('./lib/harmonies'),
+    effects: require('./lib/effects')
 }

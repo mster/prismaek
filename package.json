@@ -1,11 +1,14 @@
 {
   "name": "prismaek",
-  "version": "0.0.0",
-  "description": "Generate custom color schemes using maths.",
+  "version": "0.1.0",
+  "description": "Generate colors and color schemes using maths.",
   "main": "index.js",
   "scripts": {
     "test": "exit 0"
   },
   "author": "Michael Sterpka <michaelsterpka@gmail.com> <github: @mster>",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "color", "scheme", "tint", "tone", "shade", "harmony", "complementary", "generate"
+  ]
 }

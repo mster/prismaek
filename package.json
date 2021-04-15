@@ -1,6 +1,6 @@
 {
   "name": "prismaek",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate colors and color schemes using maths.",
   "main": "index.js",
   "scripts": {

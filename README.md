@@ -1,142 +1,231 @@
-# Prismaek
+# Prismaek [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![Build Status](https://travis-ci.com/mster/prismaek.svg?branch=main)](https://travis-ci.com/mster/prismaek) [![Coverage Status](https://coveralls.io/repos/github/mster/prismaek/badge.svg?branch=main)](https://coveralls.io/github/mster/prismaek?branch=main)
 
-Generate custom color schemes using maths. Color type conversion utilities included!
+Generate color complements, shades, tints, and tones. Convert between color spaces.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
+# Install
+
+```
+$ npm install prismaek
+```
 
 # Usage
 
+To produce complements, use the provided `harmonies` functions.
+
+See [Harmonies](#Harmonies).
+
 ```js
-const prismaek = require('prismaek')
+const { harmonies } = require("prismaek");
 
-const { splitComplementary } = prismaek.harmonies
-const { RGB2HSV } = prismaek.utils
+const hsv = { h: 153, s: 0.737, v: 0.596 };
+/* hue: 153 deg, saturation: 73.7%, value: 59.6% */
 
-// start with a single color
-const rgb = { r: 255, g: 102, b: 69 }
-
-// convert to HSV color format
-const hsv = RGB2HSV(rgb) // {h: 11, s: 0.729, v: 1}
-
-// note: HSV (HSB) format is required for scheme generation.
-const scheme = splitComplementary(hsv)
-/*
-    [
-        { h: 11, s: 0.729, v: 1 },
-        { h: 161, s: 0.729, v: 1 },
-        { h: 221, s: 0.729, v: 1 }
-    ]
-*/
+const complementary = harmonies.complementary(hsv);
+/* [ { h: 153, s: 0.737, v: 0.596 }, { h: 333, s: 0.737, v: 0.596 } ] */
 ```
 
-If you need a scheme in a particular form:
+![complementary](https://user-images.githubusercontent.com/15038724/118057317-92f8f480-b340-11eb-8a3d-5d3d1ba686ca.png)
 
 ```js
-let scheme = analagous(hsv)
-
-scheme = scheme.map(e => HSV2RGB(e))
-/*
-    [
-        { r: 255, g: 103, b: 69 },
-        { r: 255, g: 196, b: 69 },
-        { r: 221, g: 255, b: 69 },
-        { r: 128, g: 255, b: 69 }
-    ]
-*/
-
-scheme = scheme.map(e => RGB2Hex(e))
-/*
-    [ 'FF6745', 'FFC445', 'DDFF45', '80FF45' ]
-*/
+const triadic = harmonies.triadic(hsv);
+/* [ { h: 153, s: 0.737, v: 0.596 },
+     { h: 273, s: 0.737, v: 0.596 },
+     { h: 33, s: 0.737, v: 0.596 } ] */
 ```
 
-# Effects
-
-Prismaek includes an effect builder for generating **tints**, **tones**, and **shades**. Effects have one required argument and three optional arguments.
-
-<br>
-
-### shade(base[, format][, step][, count ])
-* #### **base** \<Object> | \<String> | \<Array> Base color object (HSV/RGB), hex value as a string, or an array containing any combination of either.
-* #### **format** \<String> Output format. Optional, **Default:** `hex`
-    * Supported types: `hex`, `rgb`, `hsv`
-* #### **step** \<Number> | \<String> Step size. Optional, **Default:** `0.10`
-* #### **count** \<Number> | \<String> Iteration count (base color included). Optional, **Default:** `5`
-
-<br>
+![triadic](https://user-images.githubusercontent.com/15038724/118057439-d9e6ea00-b340-11eb-9638-2ae4cd9ce2be.png)
 
 ```js
-    const { shade, tint, tone } = require('prismaek').effects;
-
-    const color = { r: 102, g: 55, b: 69 };
-    const shades = shade(color, "hex", 0.05, 5);
-    // [ '663745', '613442', '5C323E', '572F3B', '522C37' ]
+const analagous = harmonies.analagous(hsv);
+/* [ { h: 153, s: 0.737, v: 0.596 },
+     { h: 183, s: 0.737, v: 0.596 },
+     { h: 213, s: 0.737, v: 0.596 },
+     { h: 243, s: 0.737, v: 0.596 } ] */
 ```
 
-Works with schemes too. Pretty cool, huh?
+![analagous](https://user-images.githubusercontent.com/15038724/118057897-c5572180-b341-11eb-91c3-6f4516ad66ad.png)
+
+To explicitly change between color spaces, use the conversion utilities.
+
+See [Utilities](#Utilities).
 
 ```js
-const color = "#289866";
-const tetradicScheme = tetradic(hex2HSV(color));
-/* [{ h: 153, s: 0.737, v: 0.596 },
-    { h: 243, s: 0.737, v: 0.596 },
-    { h: 333, s: 0.737, v: 0.596 },
-    { h: 63, s: 0.737, v: 0.596 }] */
+const { utils } = require("prismaek");
 
-const tetradicTones = tone(tetradicScheme, "rgb", 0.1, 3);
-/* {
-  '0': [
-    { r: 60, g: 228, b: 153, shift: 0 },
-    { r: 69, g: 60, b: 228, shift: 0 },
-    { r: 228, g: 60, b: 135, shift: 0 },
-    { r: 219, g: 228, b: 60, shift: 0 }
-  ],
-  '0.1': [
-    { r: 56, g: 213, b: 143, shift: 0.1 },
-    { r: 64, g: 56, b: 213, shift: 0.1 },
-    { r: 213, g: 56, b: 126, shift: 0.1 },
-    { r: 204, g: 213, b: 56, shift: 0.1 }
-  ],
-  '0.2': [
-    { r: 52, g: 198, b: 133, shift: 0.2 },
-    { r: 60, g: 52, b: 198, shift: 0.2 },
-    { r: 198, g: 52, b: 117, shift: 0.2 },
-    { r: 190, g: 198, b: 52, shift: 0.2 }
-  ] 
-} */
+const rgb = { r: 75, g: 21, b: 156 };
+
+const hsv = utils.rgb2HSV(rgb);
+/* { h: 264, s: 0.865, v: 0.612 } */
 ```
 
-Finally, something a bit funky. 
+Validate color spaces
 
 ```js
-let woah = RGBs.map(rgb => tone(triadic(RGB2HSV(rgb))));
-/*[
-  {
-    '0': [ '950269', '699502', '026995' ],
-    '0.1': [ '8B0162', '628B01', '01628B' ],
-    '0.2': [ '81015B', '5B8101', '015B81' ],
-    '0.3': [ '770154', '547701', '015477' ],
-    '0.4': [ '6D014D', '4D6D01', '014D6D' ]
-  },
-  {
-    '0': [ 'B972C2', 'C2B972', '72C2B9' ],
-    '0.1': [ 'AC6AB5', 'B5AC6A', '6AB5AC' ],
-    '0.2': [ 'A063A8', 'A8A063', '63A8A0' ],
-    '0.3': [ '945B9B', '9B945B', '5B9B94' ],
-    '0.4': [ '87548E', '8E8754', '548E87' ]
-  },
-  {
-    '0': [ '995368', '689953', '536899' ],
-    '0.1': [ '8F4D61', '618F4D', '4D618F' ],
-    '0.2': [ '85485A', '5A8548', '485A85' ],
-    '0.3': [ '7A4253', '537A42', '42537A' ],
-    '0.4': [ '703D4C', '4C703D', '3D4C70' ]
-  }
-] */
+const hsvSpace = utils.isHSV(hsv);
+/* true */
+
+const badHSV = { h: 361, s: 1.001, v: -0.001 };
+
+const notHsvSpace = utils.isHSV(badHSV);
+/* false */
+```
+
+Get the color space of a color, using `cspace`.
+
+```js
+const { cspace } = utils;
+
+const color = { h: 312, s: 0.431, l: 0.213 };
+
+const colorSpace = cspace(color);
+/* "hsl" */
+```
+
+Dynamically transform color spaces using `xspace`.
+
+```js
+const { xspace } = utils;
+
+const colors = [
+  { r: 75, g: 21, b: 156 },
+  "#4b159c",
+  { h: 264, s: 0.865, v: 0.612 },
+  { h: 264, s: 0.763, l: 0.347 },
+];
+
+const rgbColors = colors.map((color) => xspace(color, "rgb"));
+/* [ { r: 75, g: 21, b: 156 },
+     { r: 75, g: 21, b: 156 },
+     { r: 75, g: 21, b: 156 },
+     { r: 75, g: 21, b: 156 } ] */
+```
+
+# API
+
+## Harmonies
+
+```
+harmonyName (base [, format])
+
+- base: <Object> | <String> Base color.
+
+- format: <String> Output color space, defaulting to "hsv".
+
+- Returns: <Array<<Object> | <String>> The generated harmony, including the base color.
+```
+
+_Generates mathematically proven color harmonies._
+
+```js
+const {
+  harmonies: { complementary },
+} = require("prismaek");
+
+complementary({ r: 40, g: 102, b: 106 }, "hex");
+
+complementary("#009197");
+```
+
+## Effects
+
+```
+effectName (base [, format] [, step] [, count])
+
+- base: <Object> | <String> | <Array> Base color, or array of colors.
+
+- format: <String> Output color space, defaulting to "hex".
+
+- step <Number> Step size when generating the effect, a number between 0 and 1. Default is 0.10, or 10%.
+
+- count <Number> Iteration count, defaulting to 5.
+
+- Returns: <Array<<Object> | <String>> The generated effect, including base color.
+```
+
+_Generates a color scheme based on popular effects._
+
+```js
+const {
+  effects: { shade, tint, tone },
+} = require("prismaek");
+
+shade("#ee0a97", "rgb", 0.05, 10);
+
+tint({ r: 40, g: 65, b: 106 }, "hex");
+
+tone({ h: 359, s: 0.102, l: 0.696 });
+```
+
+# Utilities
+
+## xspace
+
+```
+xspace (color, map)
+
+- color <Object> | <String> Base color.
+
+- map <String> Color space to convert to.
+
+- Returns: <Object> | <String> The converted color.
+```
+
+_Converts between supported color spaces._
+
+```js
+const {
+  utils: { xspace },
+} = require("prismaek");
+
+xspace("#ee0a97", "rgb"); // { r: 238, g: 10, b: 151 }
+```
+
+## cspace
+
+```
+cspace (color)
+
+- color <Object> | <String> Base color.
+
+- Returns <String> color space.
+```
+
+_Returns the color space of a color or null._
+
+```js
+const {
+  utils: { cspace },
+} = require("prismaek");
+
+cspace("#d5186c"); // "hex"
+
+cspace({ h: 251, s: 0.891, v: 0.668 }); // "hsv"
+
+cspace({ foo: "bar" }); // null
+```
+
+## \<from-space>2\<TO-SPACE>
+
+```
+<from-space>2<TO-SPACE> (color)
+
+- color <Object> | <String> Base color.
+
+- Returns <Object> | <String> The converted color.
+```
+
+_Useful when explicity converting from one color space to another._
+
+```js
+const {
+  utils: { rgb2Hex, hex2RGB },
+} = require("prismaek");
+
+const hex = rgb2Hex({ r: 163, g: 189, b: 254 }); // #a3bdfe
+
+hex2RGB(hex); // { r: 163, g: 189, b: 254 }
 ```
 
 # Contributing
-Thanks for checking out my package! Contribution guidelines will be coming soon.
 
-
-
+See our [guidelines](https://github.com/mster/prismaek/blob/main/CONTRIBUTING.md)
